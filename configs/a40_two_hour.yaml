@@ -1,4 +1,4 @@
-# Freeze this profile BEFORE generation. Use the staged commands in docs/TWO_HOUR.md.
+# Freeze this profile BEFORE generation. See docs/RUNNING.md for setup.
 # GPU numbering is assigned by CUDA_VISIBLE_DEVICES in the runbook, not here.
 name: a40-two-hour
 backend: vllm

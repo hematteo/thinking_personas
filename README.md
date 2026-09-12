@@ -12,8 +12,6 @@ The Assistant Axis is a direction in a model's activation space, computed from t
 
 If thinking responds differently from answers, tools used to monitor or steer persona in answers may need separate validation for thinking. This project measures that difference. It does not test whether applying those tools to thinking makes the model safer.
 
-The [original proposal](thinking_persona_proposal.md) considers three possibilities: thinking keeps the default assistant persona, is persona-neutral, or uses a distinct persona. The experiments do not settle those identities. In particular, a projection near zero does not establish persona neutrality.
-
 ## Main findings
 
 ### 1. There is no uniform thinking–answer gap on the Assistant Axis
@@ -27,7 +25,7 @@ We compared thinking and answer activations under default instructions, using **
 
 The advice estimate is close to zero; the math estimate is negative. Gaps along the Skeptic and Judge control directions are larger than the Assistant-axis gaps. Together, these results give no evidence of a consistent difference specific to the Assistant Axis across the two domains.
 
-These numbers are **raw projections**, not centered cosine similarities. Raw projection is the dot product of a token activation with a fixed unit direction. The original analysis used centered cosine; the raw-projection analysis was added after the first experiment. Both measurements are retained. See [measurement details](docs/MEASUREMENT.md) and the [results and audit](docs/RESULTS_AND_AUDIT.md).
+These numbers are **raw projections**, not centered cosine similarities. Raw projection is the dot product of a token activation with a fixed unit direction. The original analysis used centered cosine; the raw-projection analysis was added after the first experiment. Both measurements are retained. See the [methods](docs/METHODS.md) for how the scores are calculated.
 
 ### 2. Role and style instructions affect answers more than thinking
 
@@ -35,7 +33,7 @@ A follow-up used nine roles, three style instructions, and a default assistant i
 
 Six of the nine roles showed a larger shift away from the default along the Assistant Axis in answers than in thinking, after adjustment for the planned comparisons. Instructions to write in a particular style while keeping the AI identity produced the same pattern, sometimes more strongly.
 
-Thinking is therefore less responsive to many of these instructions along this axis. The result is not specific to adopting a persona. See the [follow-up results](docs/FOLLOWUP_RESULTS.md) and [combined interpretation](docs/AGGREGATED_FINDINGS.md).
+Thinking is therefore less responsive to many of these instructions along this axis. The result is not specific to adopting a persona.
 
 ### 3. Role differences remain in thinking, but are smaller
 
@@ -55,7 +53,7 @@ The first study pairs a thinking-enabled response with a thinking-disabled respo
 
 We measure the Assistant Axis, two controls derived from published Skeptic and Judge role directions, a direction made from randomly split calibration responses, and a random direction. Before the main study, a validation step checks that default answers score above roleplay answers on the Assistant Axis. A separate replay experiment places identical text under different prefixes to measure how context affects the scores.
 
-Confidence intervals resample prompts or questions, not individual tokens. The [analysis protocol](docs/PROTOCOL.md), [data guide](docs/DATA.md), and [follow-up protocol](docs/FOLLOWUP_RUN_PROTOCOL.md) give the full design.
+Confidence intervals resample prompts or questions, not individual tokens. The [methods](docs/METHODS.md) explain the comparisons, and the [data guide](docs/DATA.md) covers preparing inputs.
 
 ## Limitations and next steps
 
@@ -80,7 +78,7 @@ python scripts/verify_run.py runs/smoke
 python -m pytest -q
 ```
 
-Python 3.11 or later is required. The [running guide](docs/RUNNING.md) covers pinned dependencies, GPU setup, configuration changes, resuming runs, and reproducing figures. Real model experiments require separate model weights, vectors, prepared data, and GPU hardware. Optional model tests require additional dependencies.
+Python 3.11 or later is required. The [running guide](docs/RUNNING.md) covers installation, model runs, and output files. Real model experiments require separate model weights, vectors, prepared data, and GPU hardware. Optional model tests require additional dependencies.
 
 ## What is included
 
@@ -88,12 +86,10 @@ Python 3.11 or later is required. The [running guide](docs/RUNNING.md) covers pi
 |---|---|
 | `src/persona_dynamics/` | Generation, activation measurements, analysis, and reporting |
 | `configs/` | Synthetic checks and experiment settings |
-| `scripts/` | Data preparation, cluster launchers, figure builders, and verification |
+| `scripts/` | Data preparation, figure builders, and verification |
 | `tests/` | Tests of token handling, measurements, statistics, and pipeline behavior |
 | `docs/` | Methods, results, limitations, and reproduction instructions |
 
 **Saved datasets, model assets, run outputs, and generated figures are kept outside Git.** Paths under `data/`, `runs/`, and `artifacts/` in the detailed reports refer to the local research archive. Reproducing the recorded studies and their figures requires those files. The main smoke run above generates its own synthetic inputs; `followup_smoke.json` requires the separate follow-up input bundle.
 
-The local figure READMEs explain the first experiment (`artifacts/paper-figures/README.md`), role geometry (`artifacts/role-geometry/README.md`), and example outputs (`artifacts/report-token-examples/README.md`). They are not bundled in a fresh clone.
-
-The code builds on the [Assistant Axis repository and released vectors](https://github.com/safety-research/assistant-axis/tree/a98961956072224eaf244eb289d6c01700b63795). See the [verification record](docs/VERIFICATION.md) for the checks performed and their limits.
+The code builds on the [Assistant Axis repository and released vectors](https://github.com/safety-research/assistant-axis/tree/a98961956072224eaf244eb289d6c01700b63795).

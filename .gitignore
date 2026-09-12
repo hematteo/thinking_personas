@@ -28,3 +28,18 @@ logs/
 *.key
 .codex/
 .DS_Store
+
+# Local planning and historical research notes
+/thinking_persona_proposal.md
+/docs/AGGREGATED_FINDINGS.md
+/docs/CAMLSYS.md
+/docs/FOLLOWUP_DESIGN.md
+/docs/FOLLOWUP_RESULTS.md
+/docs/FOLLOWUP_RUN_PROTOCOL.md
+/docs/JUDGE.md
+/docs/MEASUREMENT.md
+/docs/PROTOCOL.md
+/docs/RESULTS_AND_AUDIT.md
+/docs/TWO_HOUR.md
+/docs/VERIFICATION.md
+/docs/WRITEUP_TWO_HOUR.md

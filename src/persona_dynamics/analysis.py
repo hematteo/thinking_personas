@@ -301,7 +301,7 @@ def _judge_tables(judge: pd.DataFrame | None) -> tuple[pd.DataFrame, dict]:
     info["label_sources"] = sorted(frame.label_source.fillna("unspecified").astype(str).unique().tolist()) if "label_source" in frame else ["unspecified"]
     info["heuristic_only"] = all("heuristic" in source.lower() for source in info["label_sources"])
     if info["heuristic_only"]:
-        info["source_caveat"] = "Unvalidated heuristic labels check plumbing only; they are not the proposal's independent model judge."
+        info["source_caveat"] = "Unvalidated heuristic labels check plumbing only; they are not independent model judgments."
     if "human_label" in frame:
         hand = frame.dropna(subset=["human_label", label_col])
         if len(hand):
@@ -312,7 +312,7 @@ def _judge_tables(judge: pd.DataFrame | None) -> tuple[pd.DataFrame, dict]:
             info.update(n_hand_labeled=len(hand), agreement=agreement,
                         cohen_kappa=(agreement-expected)/(1-expected) if expected < 1 else None)
     if info.get("n_hand_labeled", 0) < 30:
-        info["limitation"] = "Fewer than the proposal's 30 human-labeled calibration sentences."
+        info["limitation"] = "Fewer than the required 30 human-labeled calibration sentences."
     return rates, info
 
 
