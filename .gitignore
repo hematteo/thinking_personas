@@ -1,0 +1,30 @@
+# Local Python environments and build outputs
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Experiment inputs, downloaded assets, and generated outputs
+runs/
+data/
+artifacts/
+logs/
+*.log
+
+# Local credentials and machine settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.codex/
+.DS_Store

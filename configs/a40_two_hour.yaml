@@ -1,0 +1,27 @@
+# Freeze this profile BEFORE generation. Use the staged commands in docs/TWO_HOUR.md.
+# GPU numbering is assigned by CUDA_VISIBLE_DEVICES in the runbook, not here.
+name: a40-two-hour
+backend: vllm
+model: Qwen/Qwen3-32B
+revision: 9216db5781bf21249d130ec9da846c4624c16137
+layer: 32
+dtype: bfloat16
+device: auto
+tensor_parallel_size: 4
+batch_size: 256
+enforce_eager: true
+seeds: [0]
+domains: [advice, math]
+output_dir: runs/a40-two-hour
+target_per_domain: 40
+min_per_domain: 40
+candidate_limit_per_domain: 50
+min_think_tokens: 200
+max_tokens: 2048
+max_context: 8192
+calibration_count: 16
+e0_question_count: 3
+experiments: [E1, E2]
+pca: false
+e2_stepbystep: false
+bootstrap_samples: 1000

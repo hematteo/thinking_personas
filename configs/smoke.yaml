@@ -1,0 +1,17 @@
+name: smoke
+backend: fixture
+model: fixture/persona-state-simulator
+revision: synthetic-v1
+layer: 0
+seeds: [0, 1]
+output_dir: runs/smoke
+max_tokens: 2048
+target_per_domain: 4
+min_per_domain: 3
+min_think_tokens: 12
+calibration_count: 8
+e0_question_count: 3
+role_count: 9
+role_question_count: 3
+bootstrap_samples: 250
+synthetic_dimension: 24

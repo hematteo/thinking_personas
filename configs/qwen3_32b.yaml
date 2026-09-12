@@ -1,0 +1,8 @@
+# All omitted settings use the documented Config defaults. Relative paths use cwd.
+name: qwen3-32b
+backend: vllm
+model: Qwen/Qwen3-32B
+revision: 9216db5781bf21249d130ec9da846c4624c16137
+layer: 32
+seeds: [0, 1, 2]
+output_dir: runs/qwen3-32b

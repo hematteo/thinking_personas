@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install CPU and analysis dependencies
+        run: python -m pip install -e '.[test,analysis]'
+      - name: Run tests
+        run: python -m pytest -q
+      - name: Run and verify synthetic pipeline
+        run: |
+          persona run --config configs/smoke.yaml
+          python scripts/verify_run.py runs/smoke

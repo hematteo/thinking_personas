@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "persona-dynamics"
+version = "0.1.0"
+description = "Reproducible experiments on thinking versus answer persona geometry"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<3", "pandas>=2.2,<4", "matplotlib>=3.8,<4", "PyYAML>=6,<7"]
+
+[project.optional-dependencies]
+models = ["torch>=2.6", "transformers>=4.51,<6", "accelerate>=1", "huggingface-hub>=0.30", "datasets>=3"]
+gpu = ["vllm>=0.8.5; sys_platform == 'linux'"]
+test = ["pytest>=8"]
+analysis = ["scipy>=1.11,<2", "tokenizers>=0.21,<1"]
+
+[project.scripts]
+persona = "persona_dynamics.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

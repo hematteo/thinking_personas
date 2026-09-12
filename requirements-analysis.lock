@@ -1,0 +1,3 @@
+-r requirements-smoke.lock
+scipy==1.17.1
+tokenizers==0.22.2

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Persona experiment · matched token viewer</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;color:#202a35;background:#fafaf8}
+body{max-width:1580px;margin:auto;padding:28px}h1{font-size:27px;letter-spacing:-.6px;margin:0 0 8px}p{line-height:1.6;max-width:1050px}
+.muted{color:#596571;font-size:13px}.controls{display:flex;gap:18px;flex-wrap:wrap;padding:18px 0}label{font-size:13px;display:flex;flex-direction:column;gap:6px}
+select{font:inherit;color:inherit;min-width:110px;padding:9px;border:1px solid #adb4ba;border-radius:5px;background:white}#question{min-width:265px}
+.prompt{background:white;border-left:3px solid #2962a3;padding:14px 20px;margin:5px 0 20px;white-space:pre-wrap;line-height:1.5}
+.legend{width:min(560px,100%);margin:18px 0}.gradient{height:16px;border-radius:3px}.legend-labels{display:flex;justify-content:space-between;font-size:12px;margin-top:5px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.card{background:white;border:1px solid #dce0e2;border-radius:6px;min-width:0;padding:17px}
+.card h2{font-size:19px;margin:0 0 7px}.card h3{font-size:14px;margin:22px 0 8px}.text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.8;max-height:52vh;overflow:auto;padding:10px 7px;border:1px solid #e4e7e8}
+.token:focus,.token:hover{outline:2px solid #27313d;outline-offset:1px;position:relative;z-index:1}.meta{font-size:11px;color:#606b76;overflow-wrap:anywhere}.system{font-size:12px;line-height:1.5;white-space:pre-wrap}
+details{margin-top:12px}summary{cursor:pointer;font-size:12px}a{color:#2962a3}footer{font-size:12px;color:#606b76;margin:28px 0;line-height:1.6}
+@media(max-width:950px){.cards{grid-template-columns:1fr}.text{max-height:65vh}body{padding:18px}}
+@media print{.text{max-height:none;overflow:visible}.cards{display:block}.card{break-inside:avoid;margin-bottom:20px}.controls{display:none}}
+</style></head><body>
+<h1>Matched thinking and answer traces</h1>
+<p class="muted">Qwen3-32B · decoder block 32 · 312 saved responses · two seeds · no new inference</p>
+<p>Compare the same question and seed under default, role, and—where available—style instructions. Color shows the raw Assistant-axis projection at each generated content token. Hover or focus a token for its score and absolute position. These scores are activation coordinates, not persona probabilities.</p>
+<div class="controls"><label>Question<select id="question"></select></label><label>Role<select id="role"></select></label><label>Seed<select id="seed"></select></label><label>Segments<select id="segment"><option value="both">Thinking + answer</option value="think">Thinking only</option><option value="answer">Answer only</option></select></label></div>
+<div id="prompt" class="prompt"></div>
+<div class="legend"><div id="gradient" class="gradient"></div><div class="legend-labels"><span id="low"></span><span id="high"></span></div></div>
+<p class="muted" id="scale"></p><main class="cards" id="cards"></main>
+<footer>Formatting tokens are outside the content spans and are not displayed. UTF-8 characters split across tokens are grouped to preserve exact text; their display color uses the group's mean, and every constituent score remains in the tooltip. Segment means include all content tokens. Raw values are unchanged by display clipping. All question/role/seed combinations are available; the initial poet comparison is an illustration, not a representative-sampling claim. <a href="README.md">Methods, figure references, and limitations</a>.</footer>
+<script type="application/json" id="data">__PAYLOAD__</script>
+<script>
+'use strict';
+const D=JSON.parse(document.getElementById('data').textContent),$=id=>document.getElementById(id);
+const name=a=>a==='default'?'Default':a.replace('role_','Role: ').replace('style_','Style: ');
+function options(id,rows){for(const [value,label] of rows){const o=document.createElement('option');o.value=value;o.textContent=label;$(id).appendChild(o)}}
+options('question',D.questions.map(q=>[q.prompt_id,q.prompt_id.replace('role2-','')]));
+options('role',D.arms.filter(a=>a.startsWith('role_')).map(a=>[a,a.slice(5)]));options('seed',D.seeds.map(s=>[s,String(s)]));
+$('question').value='role2-identity-01';$('role').value='role_poet';$('seed').value='17';
+$('gradient').style.background='linear-gradient(to right,'+D.palette.filter((_,i)=>i%17===0).join(',')+')';
+$('low').textContent='Lower projection: '+D.color.low.toFixed(2);$('high').textContent='Higher projection: '+D.color.high.toFixed(2);
+$('scale').textContent='One fixed scale across all 312 responses. Colors saturate at the global 1st and 99th percentiles; tooltips retain unclipped scores. This is a single-layer adaptation of Representation Engineering, Figs. 8–9.';
+const index=new Map(D.records.map(r=>[[r.prompt_id,r.seed,r.arm].join('|'),r]));
+function el(tag,text,cls){const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x}
+function render(){
+  const q=$('question').value,seed=Number($('seed').value),role=$('role').value,mode=$('segment').value;
+  $('prompt').textContent=D.questions.find(x=>x.prompt_id===q).text;$('cards').replaceChildren();
+  const arms=['default',role],style=role.replace('role_','style_');if(D.arms.includes(style))arms.push(style);
+  for(const arm of arms){
+    const r=index.get([q,seed,arm].join('|'));if(!r)throw Error('Missing matched response');
+    const card=el('section',undefined,'card');card.append(el('h2',name(arm)),el('div','Record '+r.record_id,'meta'));
+    const detail=el('details');detail.append(el('summary','System instruction'),el('div',r.system_prompt,'system'));card.append(detail);
+    for(const segment of ['think','answer']){
+      if(mode!=='both'&&mode!==segment)continue;
+      const s=r.segments[segment];card.append(el('h3',(segment==='think'?'Thinking':'Answer')+' · '+s.count+' tokens · mean '+s.mean.toFixed(3)));
+      const body=el('div',undefined,'text');body.setAttribute('aria-label',name(arm)+' '+segment);
+      for(const g of s.groups){
+        const value=g.scores.reduce((a,b)=>a+b,0)/g.scores.length;
+        const f=Math.max(0,Math.min(1,(value-D.color.low)/(D.color.high-D.color.low))),paletteIndex=Math.round(f*255);
+        const span=el('span',g.text,'token');span.style.backgroundColor=D.palette[paletteIndex];span.style.color=paletteIndex<126?'white':'#18212b';span.tabIndex=0;
+        span.title=g.indices.map((pos,i)=>'Position '+pos+' · token ID '+g.ids[i]+' · raw projection '+g.scores[i].toFixed(6)).join('\n');
+        if(g.scores.length>1)span.title+='\nUnicode group; color uses mean '+value.toFixed(6);
+        span.setAttribute('aria-label',g.text+'; '+span.title);body.appendChild(span);
+      }card.append(body);
+    }$('cards').append(card);
+  }
+}
+for(const id of ['question','role','seed','segment'])$(id).addEventListener('change',render);render();
+window.tokenViewer={data:D,render};
+</script></body></html>
